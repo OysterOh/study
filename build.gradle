@@ -1,5 +1,6 @@
 buildscript {
 	ext {
+		// queryDsl 의 버전
 		queryDslVersion = "5.0.0"
 	}
 }
@@ -8,7 +9,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.13'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-	//querydsl 추가
+	//queryDsl 플러그인 추가
 	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
@@ -39,16 +40,17 @@ dependencies {
 
 	// 쿼리 파라미터 추가 외부 로그 남기기
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0'
-	// querydsl 추가
+	// querydsl 라이브러리 추가
+	// queryDsl 에서 제공하는 내부 클래스를 사용하기 위한 라이브러리
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+	// QClass 를 생성하기 위한 라이브러리
 	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-}
-
 //querydsl 추가 시작
+//queryDsl 은 내부적으로 Entity 클래스를 인식해서 그와 비슷한 모양의 QClass 를 제작한다.
+//이 QClass 를 이용해서 Entity 의 타입을 검증할 수 있고, 그에 맞는 쿼리문을 builder 형태로 제작한다.
+//밑에 작성된 내용은 QClass 의 생성 디렉토리 지정 및 프로젝트 build 시 컴파일 명령문 등을 세팅해 놓은 코드이다.
 def querydslDir = "$buildDir/generated/querydsl"
 querydsl {
 	jpa = true
@@ -64,3 +66,7 @@ compileQuerydsl {
 	options.annotationProcessorPath = configurations.querydsl
 }
 //querydsl 추가 끝
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
